@@ -45,6 +45,7 @@ android {
 dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation("com.google.dagger:hilt-android:2.57.1")
+    implementation(libs.androidx.compose.runtime)
     ksp("com.google.dagger:hilt-android-compiler:2.57.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
