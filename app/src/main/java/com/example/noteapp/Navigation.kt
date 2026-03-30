@@ -7,7 +7,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.noteapp.ui.screens.home.HomeScreen
 import com.example.noteapp.ui.screens.home.HomeViewModel
+import com.example.noteapp.ui.screens.login.LoginScreen
 
 sealed class Screen(val route: String) {
     object HomeScreen : Screen("home-screen")
@@ -26,7 +28,11 @@ fun Navigation() {
     ) {
 
         composable(Screen.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(navController,hiltViewModel())
+        }
+
+         composable(Screen.LoginScreen.route) {
+             LoginScreen(navController,hiltViewModel())
         }
 
 
