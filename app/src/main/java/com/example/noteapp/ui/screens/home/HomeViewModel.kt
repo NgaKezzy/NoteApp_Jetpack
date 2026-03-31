@@ -3,7 +3,9 @@ package com.example.noteapp.ui.screens.home
 import android.R.attr.value
 import androidx.lifecycle.ViewModel
 import com.example.noteapp.models.Note
+import dagger.hilt.InstallIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,12 +16,15 @@ import java.time.LocalDateTime
 data class HomeState(
     val titleNote: String = "",
     val descriptionNote: String = "",
+    val detailTitleNote: String = "",
+    val detailDescriptionNote: String = "",
     val notes: List<Note> = emptyList(),
     val isShowDialog: Boolean = false,
 
-)
+    )
 
 @HiltViewModel
+
 class HomeViewModel @Inject constructor() : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -30,7 +35,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                 notes = it.notes + Note(
                     it.titleNote,
                     it.descriptionNote,
-                    LocalDateTime.now()
+                    LocalDate.now()
                 ),
                 titleNote = "",
                 descriptionNote = ""
@@ -38,24 +43,53 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun  onTitleChange(value :String){
-         _state.update { it.copy(titleNote = value) }
+    fun onTitleChange(value: String) {
+        _state.update { it.copy(titleNote = value) }
         println(value)
     }
 
 
-     fun  onDescriptionChange(value :String){
-         _state.update { it.copy(descriptionNote = value) }
-           println(value)
+    fun onDescriptionChange(value: String) {
+        _state.update { it.copy(descriptionNote = value) }
+        println(value)
     }
 
 
-    fun showDialog(){
+    fun showDialog() {
         _state.update { it.copy(isShowDialog = true) }
     }
 
-     fun closeDialog(){
+    fun closeDialog() {
         _state.update { it.copy(isShowDialog = false) }
+    }
+
+    fun onDetailTitleChange(value: String, index: Int) {
+        _state.update { currentState ->
+            val newList = currentState.notes.toMutableList()
+
+            val oldNote = newList[index]
+            newList[index] = oldNote.copy(title = value, createdAt = LocalDate.now())
+
+            currentState.copy(notes = newList, detailTitleNote = value)
+        }
+    }
+
+    fun onDetailDescriptionChange(value: String, index: Int) {
+            _state.update { currentState ->
+            val newList = currentState.notes.toMutableList()
+
+            val oldNote = newList[index]
+            newList[index] = oldNote.copy(description = value, createdAt = LocalDate.now())
+
+            currentState.copy(notes = newList, descriptionNote = value)
+        }
+    }
+
+    fun  initDetailNote(note: Note){
+        _state.update {
+            it.copy(detailTitleNote = note.title, detailDescriptionNote = note.description)
+        }
+
     }
 
 

@@ -1,9 +1,11 @@
 package com.example.noteapp.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,15 +38,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.noteapp.Screen
 import com.example.noteapp.models.Note
 import com.example.noteapp.ui.screens.login.LoginScreenContent
 import com.example.noteapp.ui.screens.login.LoginState
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
 fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     HomeScreenContent(
+        navController = navController,
         state = state,
         viewModel,
         onTitleChange = viewModel::onTitleChange,
@@ -56,6 +62,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel = hilt
 
 @Composable
 fun HomeScreenContent(
+    navController: NavHostController,
     state: HomeState, viewModel: HomeViewModel? = null,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -66,14 +73,14 @@ fun HomeScreenContent(
     // 👇 DIALOG ĐẶT Ở ĐÂY
     if (state.isShowDialog) {
 
-    val titleFocusRequester = FocusRequester()
-    val descriptionFocusRequester = FocusRequester()
-    val focusManager = LocalFocusManager.current
+        val titleFocusRequester = FocusRequester()
+        val descriptionFocusRequester = FocusRequester()
+        val focusManager = LocalFocusManager.current
 
-    // 👇 auto focus khi mở dialog
-    LaunchedEffect(Unit) {
-        titleFocusRequester.requestFocus()
-    }
+        // 👇 auto focus khi mở dialog
+        LaunchedEffect(Unit) {
+            titleFocusRequester.requestFocus()
+        }
         AlertDialog(
             onDismissRequest = { viewModel?.closeDialog() },
             title = { Text("Add Note") },
@@ -88,10 +95,10 @@ fun HomeScreenContent(
                             imeAction = ImeAction.Next // nút Enter thành Next
                         ),
                         keyboardActions = KeyboardActions(
-                        onNext = {
-                            descriptionFocusRequester.requestFocus() // 👉 chuyển xuống description
-                        }
-                    )
+                            onNext = {
+                                descriptionFocusRequester.requestFocus() // 👉 chuyển xuống description
+                            }
+                        )
                     )
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -103,7 +110,7 @@ fun HomeScreenContent(
                         minLines = 3,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done,
-                            ),
+                        ),
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 focusManager.clearFocus() // ẩn keyboard
@@ -147,17 +154,35 @@ fun HomeScreenContent(
                             .padding(horizontal = 16.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color.Cyan)
+                            .clickable {
+                                navController.currentBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.apply {
+                                        set("selected_note", state.notes[index])
+                                        set("index", index)
+                                    }
+                                navController.navigate(Screen.DetailNoteScreen.route)
+                            }
                             .padding(10.dp)
                     ) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(
-                                text = "Tittle: ${state.notes[index].title}",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.W600
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Tittle: ${state.notes[index].title}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.W600
+                                )
+                                Text(
+                                    text = "Time: ${state.notes[index].createdAt}",
+                                    fontSize = 14.sp,
+                                )
+                            }
                             Text(text = "Description: ${state.notes[index].description}")
                         }
 
@@ -174,6 +199,7 @@ fun HomeScreenContent(
 @Composable
 fun HomeScreenPreview() {
     HomeScreenContent(
+        navController = rememberNavController(),
         state = HomeState(
             isShowDialog = false,
             titleNote = "",
@@ -182,7 +208,7 @@ fun HomeScreenPreview() {
                 Note(
                     "123",
                     "fsdfsd",
-                    LocalDateTime.now()
+                    LocalDate.now()
                 )
             ) // fake data cho preview đẹp hơn
         ),

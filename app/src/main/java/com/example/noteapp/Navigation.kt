@@ -7,6 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.noteapp.ui.screens.home.DetailNoteScreen
 import com.example.noteapp.ui.screens.home.HomeScreen
 import com.example.noteapp.ui.screens.home.HomeViewModel
 import com.example.noteapp.ui.screens.login.LoginScreen
@@ -14,6 +15,7 @@ import com.example.noteapp.ui.screens.login.LoginScreen
 sealed class Screen(val route: String) {
     object HomeScreen : Screen("home-screen")
     object LoginScreen : Screen("login-screen")
+    object DetailNoteScreen : Screen("detail-note-screen")
 }
 
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -33,6 +35,10 @@ fun Navigation() {
 
          composable(Screen.LoginScreen.route) {
              LoginScreen(navController,hiltViewModel())
+        }
+
+        composable(Screen.DetailNoteScreen.route) {
+            DetailNoteScreen(navController, hiltViewModel())
         }
 
 

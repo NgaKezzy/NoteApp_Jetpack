@@ -1,3 +1,6 @@
+import io.grpc.InternalChannelz.id
+import org.jetbrains.kotlin.backend.common.serialization.metadata.DynamicTypeDeserializer.id
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
