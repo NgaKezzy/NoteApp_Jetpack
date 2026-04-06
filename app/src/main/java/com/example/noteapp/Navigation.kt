@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.noteapp.ui.screens.home.DetailNoteScreen
 import com.example.noteapp.ui.screens.home.HomeScreen
@@ -26,21 +27,34 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.HomeScreen.route
+        startDestination = "home_graph"
     ) {
 
-        composable(Screen.HomeScreen.route) {
-            HomeScreen(navController,hiltViewModel())
+        // Nhóm Home + Detail vào chung 1 navigation graph
+        // để share cùng 1 HomeViewModel
+        navigation(
+            startDestination = Screen.HomeScreen.route,
+            route = "home_graph"
+        ) {
+            composable(Screen.HomeScreen.route) {
+                val parentEntry = remember(it) {
+                    navController.getBackStackEntry("home_graph")
+                }
+                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
+                HomeScreen(navController, viewModel)
+            }
+
+            composable(Screen.DetailNoteScreen.route) {
+                val parentEntry = remember(it) {
+                    navController.getBackStackEntry("home_graph")
+                }
+                val viewModel: HomeViewModel = hiltViewModel(parentEntry)
+                DetailNoteScreen(navController, viewModel)
+            }
         }
 
-         composable(Screen.LoginScreen.route) {
-             LoginScreen(navController,hiltViewModel())
+        composable(Screen.LoginScreen.route) {
+            LoginScreen(navController, hiltViewModel())
         }
-
-        composable(Screen.DetailNoteScreen.route) {
-            DetailNoteScreen(navController, hiltViewModel())
-        }
-
-
     }
 }

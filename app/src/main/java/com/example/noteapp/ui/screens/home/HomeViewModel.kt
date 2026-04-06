@@ -1,15 +1,23 @@
 package com.example.noteapp.ui.screens.home
 
 import android.R.attr.value
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.noteapp.models.Note
+import com.example.noteapp.models.Post
+import com.example.noteapp.services.ApiService
 import dagger.hilt.InstallIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -20,15 +28,18 @@ data class HomeState(
     val detailDescriptionNote: String = "",
     val notes: List<Note> = emptyList(),
     val isShowDialog: Boolean = false,
+    val posts: List<Post> = emptyList()
 
     )
 
 @HiltViewModel
-
-class HomeViewModel @Inject constructor() : ViewModel() {
+open class HomeViewModel @Inject constructor(
+     private val api: ApiService
+) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun addNote() {
         _state.update {
             it.copy(
@@ -81,13 +92,42 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             val oldNote = newList[index]
             newList[index] = oldNote.copy(description = value, createdAt = LocalDate.now())
 
-            currentState.copy(notes = newList, descriptionNote = value)
+            currentState.copy(notes = newList, detailDescriptionNote = value)
         }
     }
 
     fun  initDetailNote(note: Note){
         _state.update {
             it.copy(detailTitleNote = note.title, detailDescriptionNote = note.description)
+        }
+
+    }
+
+    fun removeNote(index: Int){
+        _state.update { currentState -> val newList = currentState.notes.toMutableList()
+
+        if (index in newList.indices) {
+            newList.removeAt(index)
+        }
+
+        currentState.copy(notes = newList)
+        }
+
+    }
+
+    fun getPosts(){
+        viewModelScope.launch {
+            try {
+                val response = api.getPosts()
+                _state.update { it.copy(posts = response) }
+            Log.i("call api", response.toString())
+
+
+            }catch (
+                e: Exception
+            ){
+               Log.e("ERROR", e.toString())
+            }
         }
 
     }

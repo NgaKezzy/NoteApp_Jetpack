@@ -68,7 +68,9 @@ fun HomeScreenContent(
     onDescriptionChange: (String) -> Unit,
     onAddNote: () -> Unit
 ) {
-
+    LaunchedEffect(Unit) {
+        viewModel?.getPosts()
+    }
 
     // 👇 DIALOG ĐẶT Ở ĐÂY
     if (state.isShowDialog) {
@@ -80,6 +82,7 @@ fun HomeScreenContent(
         // 👇 auto focus khi mở dialog
         LaunchedEffect(Unit) {
             titleFocusRequester.requestFocus()
+
         }
         AlertDialog(
             onDismissRequest = { viewModel?.closeDialog() },
@@ -145,7 +148,7 @@ fun HomeScreenContent(
         LazyColumn(
             modifier = Modifier.padding(padding) // 👈 áp padding
         ) {
-            items(state.notes.size) { index ->   // 👈 dùng items thay vì itemsIndexed
+            items(state.posts.size) { index ->   // 👈 dùng items thay vì itemsIndexed
                 Column {
                     Box(
                         modifier = Modifier
@@ -155,13 +158,13 @@ fun HomeScreenContent(
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color.Cyan)
                             .clickable {
-                                navController.currentBackStackEntry
-                                    ?.savedStateHandle
-                                    ?.apply {
-                                        set("selected_note", state.notes[index])
-                                        set("index", index)
-                                    }
-                                navController.navigate(Screen.DetailNoteScreen.route)
+//                                navController.currentBackStackEntry
+//                                    ?.savedStateHandle
+//                                    ?.apply {
+//                                        set("selected_note", state.notes[index])
+//                                        set("index", index)
+//                                    }
+//                                navController.navigate(Screen.DetailNoteScreen.route)
                             }
                             .padding(10.dp)
                     ) {
@@ -174,20 +177,20 @@ fun HomeScreenContent(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Tittle: ${state.notes[index].title}",
+                                    text = "Tittle: ${state.posts[index].title}",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.W600
                                 )
-                                Text(
-                                    text = "Time: ${state.notes[index].createdAt}",
-                                    fontSize = 14.sp,
-                                )
+//                                Text(
+//                                    text = "Time: ${state.notes[index].createdAt}",
+//                                    fontSize = 14.sp,
+//                                )
                             }
-                            Text(text = "Description: ${state.notes[index].description}")
+                            Text(text = "Description: ${state.posts[index].body}")
                         }
 
                     }
-                    if (index < state.notes.size - 1)
+                    if (index < state.posts.size - 1)
                         Spacer(modifier = Modifier.height(10.dp))
                 }
             }
