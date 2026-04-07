@@ -120,7 +120,6 @@ open class HomeViewModel @Inject constructor(
             try {
                 val response = api.getPosts()
                 _state.update { it.copy(posts = response) }
-            Log.i("call api", response.toString())
 
 
             }catch (
